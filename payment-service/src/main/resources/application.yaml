@@ -1,0 +1,32 @@
+server:
+  port: 8084
+spring:
+  application:
+    name: payment-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/payment-db
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: ${JWT_SECRET}
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+razorpay:
+  base-url: https://api.razorpay.com/v1
+  key-id: ${RZP_KEY}
+  key-secret: ${RZP_SECRET}
+  webhook-secret:

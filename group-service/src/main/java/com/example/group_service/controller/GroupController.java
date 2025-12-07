@@ -25,8 +25,6 @@ public class GroupController {
         return "Hi " + principal.getName() + ", Group Service is running...";
     }
 
-
-
     @PostMapping("/create")
     public ResponseEntity<GroupResponse> createGroup(
             @AuthenticationPrincipal Jwt jwt,

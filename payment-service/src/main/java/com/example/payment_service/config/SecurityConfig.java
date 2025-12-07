@@ -1,4 +1,4 @@
-package com.example.group_service.config;
+package com.example.payment_service.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
