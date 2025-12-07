@@ -1,6 +1,5 @@
 package com.example.user_service.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;

@@ -48,7 +48,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
             // GET DETAILS FROM TOKEN
             String userId = claims.getSubject();
-            String roles = claims.get("roles", String.class);
+            String roles = claims.get("role", String.class);
 
             // MUTATE REQUEST (VERY IMPORTANT)
             ServerHttpRequest mutatedRequest = exchange.getRequest()
