@@ -36,7 +36,7 @@ public class GroupService {
                 .totalAmount(request.totalAmount())
                 .splitType(request.splitType())
                 .status(GroupStatus.DRAFT)
-                .expiresAt(request.expiresAt())
+                .expiresAt(Instant.now().plusSeconds(600))
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();

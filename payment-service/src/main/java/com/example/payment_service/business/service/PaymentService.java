@@ -4,6 +4,7 @@ import com.example.payment_service.business.dto.CreatePaymentIntentRequest;
 import com.example.payment_service.business.dto.PaymentIntentResponse;
 import com.example.payment_service.business.dto.RazorpayPaymentLinkRequest;
 import com.example.payment_service.business.dto.RazorpayPaymentLinkResponse;
+import com.example.payment_service.client.GroupClient;
 import com.example.payment_service.client.RazorpayClient;
 import com.example.payment_service.config.RazorpayProperties;
 import com.example.payment_service.data.entities.Payment;
@@ -30,7 +31,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final RazorpayClient razorpayClient;
     private final RazorpayProperties razorpayProperties;
-
+    private final GroupClient groupClient;
 
     @Transactional
     public PaymentIntentResponse createIntent(CreatePaymentIntentRequest request) {
@@ -95,6 +96,9 @@ public class PaymentService {
 
             if ("paid".equals(status)) {
                 payment.setStatus(PaymentStatus.PAID);
+
+                // notify group service
+                groupClient.markMemberPaid(payment.getGroupId(), payment.getMemberId());
             } else {
                 payment.setStatus(PaymentStatus.FAILED);
             }

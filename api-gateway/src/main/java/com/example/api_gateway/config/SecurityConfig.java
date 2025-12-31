@@ -41,7 +41,6 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyExchange().authenticated()
                 )
-
                 .build();
     }
 }

@@ -27,10 +27,10 @@ public class GroupController {
 
     @PostMapping("/create")
     public ResponseEntity<GroupResponse> createGroup(
-            @AuthenticationPrincipal Jwt jwt,
+            Principal principal,
             @RequestBody @Valid CreateGroupRequest request
     ) {
-        String hostUserId = jwt.getSubject();
+        String hostUserId = principal.getName();
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(groupService.createGroup(hostUserId, request));
     }

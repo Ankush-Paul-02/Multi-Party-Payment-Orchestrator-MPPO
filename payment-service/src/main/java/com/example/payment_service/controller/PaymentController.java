@@ -25,6 +25,7 @@ public class PaymentController {
 
     @PostMapping("/intents")
     public ResponseEntity<PaymentIntentResponse> createIntent(
+            Principal principal,
             @RequestBody @Valid CreatePaymentIntentRequest request) {
 
         return ResponseEntity.status(HttpStatus.CREATED)

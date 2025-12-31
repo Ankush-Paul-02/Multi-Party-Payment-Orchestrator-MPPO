@@ -40,6 +40,7 @@ public class GroupOrder {
 
     private Instant expiresAt;
 
+    @Builder.Default
     @OneToMany(mappedBy = "groupOrder", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GroupMember> members = new ArrayList<>();
 

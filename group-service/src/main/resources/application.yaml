@@ -1,6 +1,9 @@
 server:
   port: 8083
 spring:
+  cloud:
+    discovery:
+      enabled: true
   application:
     name: group-service
   datasource:
