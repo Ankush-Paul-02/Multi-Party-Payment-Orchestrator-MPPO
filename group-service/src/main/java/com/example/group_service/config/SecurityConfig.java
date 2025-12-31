@@ -78,19 +78,17 @@ public class SecurityConfig {
                             ? List.of(new SimpleGrantedAuthority(roles))
                             : List.of();
 
-            AbstractAuthenticationToken auth =
-                    new AbstractAuthenticationToken(authorities) {
-                        @Override
-                        public Object getCredentials() {
-                            return null;
-                        }
+            return new AbstractAuthenticationToken(authorities) {
+                @Override
+                public Object getCredentials() {
+                    return null;
+                }
 
-                        @Override
-                        public Object getPrincipal() {
-                            return userId;
-                        }
-                    };
-            return auth;
+                @Override
+                public Object getPrincipal() {
+                    return userId;
+                }
+            };
         }
     }
 }
