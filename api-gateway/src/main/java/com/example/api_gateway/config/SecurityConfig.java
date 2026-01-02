@@ -22,17 +22,16 @@ public class SecurityConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
         AuthenticationWebFilter jwtFilter = new AuthenticationWebFilter(jwtAuthManager);
+        // Set logic to read JWT token from Authorization header
         jwtFilter.setServerAuthenticationConverter(jwtConverter);
 
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
-
+                // Do not store user info in session (JWT is checked every time)
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
-
                 .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
-
                 .authorizeExchange(ex -> ex
                         .pathMatchers(
                                 "/actuator/**",

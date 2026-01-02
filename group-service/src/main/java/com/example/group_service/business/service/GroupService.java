@@ -2,16 +2,19 @@ package com.example.group_service.business.service;
 
 import com.example.group_service.business.dto.CreateGroupRequest;
 import com.example.group_service.business.dto.GroupResponse;
+import com.example.group_service.business.dto.MemberRequest;
 import com.example.group_service.business.dto.MemberResponse;
 import com.example.group_service.business.shared.CreatePaymentIntentRequest;
 import com.example.group_service.business.shared.PaymentIntentResponse;
 import com.example.group_service.business.utils.SplitCalculator;
 import com.example.group_service.client.PaymentClient;
+import com.example.group_service.client.UserClient;
 import com.example.group_service.data.entities.GroupMember;
 import com.example.group_service.data.entities.GroupOrder;
 import com.example.group_service.data.enums.GroupStatus;
 import com.example.group_service.data.enums.MemberStatus;
 import com.example.group_service.data.repositories.GroupOrderRepository;
+import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,9 +30,15 @@ public class GroupService {
     private final GroupOrderRepository groupOrderRepository;
     private final SplitCalculator splitCalculator;
     private final PaymentClient paymentClient;
+    private final UserClient userClient;
 
     @Transactional
     public GroupResponse createGroup(String hostUserId, CreateGroupRequest request) {
+        ///  If split type is not equal then custom amount is required in {@link MemberRequest}
+        ///  check the group-members are valid or not
+        List<MemberRequest> memberRequests = validateAndAttachUserIds(request.members());
+
+        ///  Build the group order
         GroupOrder groupOrder = GroupOrder.builder()
                 .hostUserId(hostUserId)
                 .externalCartId(request.cartId())
@@ -41,10 +50,10 @@ public class GroupService {
                 .updatedAt(Instant.now())
                 .build();
 
-        splitCalculator.applySplit(groupOrder, request.members());
+        splitCalculator.applySplit(groupOrder, memberRequests);
 
         groupOrder.setStatus(GroupStatus.OPEN);
-        groupOrderRepository.save(groupOrder);
+        groupOrderRepository.saveAndFlush(groupOrder);
 
         // create payment intents for all members
         for (GroupMember groupMember: groupOrder.getMembers()) {
@@ -58,7 +67,7 @@ public class GroupService {
             );
             groupMember.setPaymentId(response.paymentId());
         }
-
+        groupOrderRepository.save(groupOrder);
         return toResponse(groupOrder);
     }
 
@@ -121,5 +130,33 @@ public class GroupService {
                 g.getRequiredPaidAmount(),
                 members
         );
+    }
+
+    private List<MemberRequest> validateAndAttachUserIds(
+            List<MemberRequest> memberRequests
+    ) {
+        return memberRequests.stream()
+                .map(member -> {
+                    try {
+                        String userId = userClient.getUserIdByEmail(member.email());
+
+                        return new MemberRequest(
+                                userId,
+                                member.email(),
+                                member.phone(),
+                                member.customAmount()
+                        );
+
+                    } catch (FeignException.NotFound e) {
+                        throw new RuntimeException(
+                                "User not registered: " + member.email()
+                        );
+                    } catch (FeignException e) {
+                        throw new RuntimeException(
+                                "User service unavailable. Please try again."
+                        );
+                    }
+                })
+                .toList();
     }
 }

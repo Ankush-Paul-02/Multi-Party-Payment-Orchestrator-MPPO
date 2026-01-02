@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(
         name = "PAYMENT-SERVICE",
-        url = "http://localhost:8084",
         path = "/api/v1/payment",
         configuration = FeignGatewayHeaderConfig.class
 )
